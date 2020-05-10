@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="mysql的几个连接查询的图解"><meta name="keywords" content=""><meta name="author" content="Luis"><meta name="copyright" content="Luis"><title>mysql的几个连接查询的图解 | Luis's Blog</title><link rel="shortcut icon" href="https://s1.ax1x.com/2020/05/08/YKf2zF.jpg"><link rel="stylesheet" href="/css/index.css?version=1.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.7.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script><meta name="generator" content="Hexo 4.2.0"></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#连接查询"><span class="toc-number">1.</span> <span class="toc-text">连接查询</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#连接查询的意义"><span class="toc-number">2.</span> <span class="toc-text">连接查询的意义</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#连接查询的种类"><span class="toc-number">2.1.</span> <span class="toc-text">连接查询的种类</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#外连接"><span class="toc-number">3.</span> <span class="toc-text">外连接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#左连接"><span class="toc-number">3.1.</span> <span class="toc-text">左连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#右连接"><span class="toc-number">3.2.</span> <span class="toc-text">右连接</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#全连接"><span class="toc-number">3.3.</span> <span class="toc-text">全连接</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内连接"><span class="toc-number">4.</span> <span class="toc-text">内连接</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考文档-侵联删"><span class="toc-number">5.</span> <span class="toc-text">参考文档(侵联删)</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">Luis</div><div class="author-info__description text-center">人总需要记住遗憾</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">14</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">15</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://tva1.sinaimg.cn/large/007S8ZIlly1geli5cwtgpj31400mijty.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Luis's Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/categories">Categories</a><a class="site-page" href="/gallery">Gallery</a><a class="site-page" href="/about">About</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">mysql的几个连接查询的图解</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2020-05-10</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%95%B0%E6%8D%AE%E5%BA%93/mysql/">mysql</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>空余时间整理下,mysql的几种连接查询,几个基本的概念需要记录下,其他直接用图解,相对直观~😈</p>
+<a id="more"></a>
+
+<h2 id="连接查询"><a href="#连接查询" class="headerlink" title="连接查询"></a>连接查询</h2><p>连接查询：将多张表连到一起进行查询（会导致记录数行和字段数列发生改变）</p>
+<h2 id="连接查询的意义"><a href="#连接查询的意义" class="headerlink" title="连接查询的意义"></a>连接查询的意义</h2><p>在关系型数据库设计过程中，实体（表）与实体之间是存在很多联系的。在关系型数据库表的设计过程中，遵循着关系来设计：一对一，一对多和多对多，通常在实际操作的过程中，需要利用这层关系来保证数据的完整性。</p>
+<h3 id="连接查询的种类"><a href="#连接查询的种类" class="headerlink" title="连接查询的种类"></a>连接查询的种类</h3><ol>
+<li><p>交叉连接</p>
+<p>交叉连接：将两张表的数据与另外一张表彼此交叉</p>
+<p>原理:</p>
+<ol>
+<li>从第一张表依次取出每一条记录</li>
+<li>取出每一条记录之后，与另外一张表的全部记录挨个匹配</li>
+<li>没有任何匹配条件，所有的结果都会进行保留</li>
+<li>记录数 = 第一张表记录数 * 第二张表记录数；字段数 = 第一张表字段数  + 第二张表字段数（笛卡尔积）</li>
+</ol>
+<p>语法: 基本语法：表1 cross join 表2;</p>
+<p>应用: 交叉连接产生的结果是笛卡尔积，没有实际应用。</p>
+</li>
+</ol>
+<ol start="2">
+<li><p>内连接</p>
+<p>原理:</p>
+<p>关键字inner join，从一张表中取出所有的记录去另外一张表中匹配：利用匹配条件进行匹配，成功了则保留，失败了放弃。</p>
+<ol>
+<li>从第一张表中取出一条记录，然后去另外一张表中进行匹配</li>
+<li>利用匹配条件进行匹配：<ol>
+<li>匹配到：保留，继续向下匹配</li>
+<li>匹配失败：向下继续，如果全表匹配失败，结束</li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+<p>   语法: 表1 [inner] join 表2 on 匹配条件;</p>
+<ol>
+<li><p>如果内连接没有条件（允许），那么其实就是交叉连接（避免）</p>
+</li>
+<li><p>使用匹配条件进行匹配</p>
+</li>
+<li><p>因为表的设计通常容易产生同名字段，尤其是ID，所以为了避免重名出现错误，通常使用表名.字段名，来确保唯一性</p>
+</li>
+<li><p>通常，如果条件中使用到对应的表名，而表名通常比较长，所以可以通过表别名来简化</p>
+</li>
+<li><p>内连接匹配的时候，必须保证匹配到才会保存</p>
+</li>
+<li><p>内连接因为不强制必须使用匹配条件（on）因此可以在数据匹配完成之后，使用where条件来限制，效果与on一样（建议使用on）</p>
+<p>应用:</p>
+<p>内连接通常是在对数据有精确要求的地方使用：必须保证两种表中都能进行数据匹配。</p>
+</li>
+</ol>
+<ol start="3">
+<li><p>外连接</p>
+<p>关键字：outer join，按照某一张表作为主表（表中所有记录在最后都会保留），根据条件去连接另外一张表，从而得到目标数据。</p>
+<p>外连接分为两种：左外连接（left join），右外连接（right join）</p>
+<p>左连接：左表是主表</p>
+<p>右连接：右表是主表</p>
+<p>原理:</p>
+<ol>
+<li>确定连接主表：左连接就是left join左边的表为主表；right join就是右边为主表</li>
+<li>拿主表的每一条记录，去匹配另外一张表（从表）的每一条记录</li>
+<li>如果满足匹配条件：保留；不满足即不保留</li>
+<li>如果主表记录在从表中一条都没有匹配成功，那么也要保留该记录：从表对应的字段值都未NULL</li>
+</ol>
+<p>语法: </p>
+<p>左连接：主表 left join 从表 on 连接条件;</p>
+<p>右连接：从表 right join 主表 on连接条件;</p>
+<p>应用:</p>
+<p>非常常用的一种获取的数据方式：作为数据获取对应主表以及其他数据（关联）</p>
+</li>
+</ol>
+<h2 id="外连接"><a href="#外连接" class="headerlink" title="外连接"></a>外连接</h2><h3 id="左连接"><a href="#左连接" class="headerlink" title="左连接"></a>左连接</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">left</span> <span class="keyword">join</span> b <span class="keyword">on</span> a.id = b.id</span><br></pre></td></tr></table></figure>
+
+<p>left join 是left outer join的简写，它的全称是左外连接，是外连接中的一种。</p>
+<p>左(外)连接，左表(a_table)的记录将会全部表示出来，而右表(b_table)只会显示符合搜索条件的记录。右表记录不足的地方均为NULL。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1genppherdtj30d608f74k.jpg" alt="img"></p>
+<h3 id="右连接"><a href="#右连接" class="headerlink" title="右连接"></a>右连接</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">right</span> <span class="keyword">join</span> b <span class="keyword">on</span> a.id = b.id</span><br></pre></td></tr></table></figure>
+
+<p>right join是right outer join的简写，它的全称是右外连接，是外连接中的一种。</p>
+<p>与左(外)连接相反，右(外)连接，左表(a_table)只会显示符合搜索条件的记录，而右表(b_table)的记录将会全部表示出来。左表记录不足的地方均为NULL。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1genpns8ux3j30dp07wjrl.jpg" alt="img"></p>
+<h3 id="全连接"><a href="#全连接" class="headerlink" title="全连接"></a>全连接</h3><p>MySQL目前不支持此种方式，可以用其他方式替代解决。</p>
+<h2 id="内连接"><a href="#内连接" class="headerlink" title="内连接"></a>内连接</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> a <span class="keyword">inner</span> <span class="keyword">join</span> b <span class="keyword">on</span> a.id = b.id;</span><br></pre></td></tr></table></figure>
+
+<p>组合两个表中的记录，返回关联字段相符的记录，也就是返回两个表的交集（阴影）部分。</p>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1genppa59mej30di07x0sw.jpg" alt="img"></p>
+<h2 id="参考文档-侵联删"><a href="#参考文档-侵联删" class="headerlink" title="参考文档(侵联删)"></a>参考文档(侵联删)</h2><ol>
+<li><a href="https://blog.csdn.net/plg17/article/details/78758593" target="_blank" rel="noopener">https://blog.csdn.net/plg17/article/details/78758593</a></li>
+<li><a href="https://blog.csdn.net/JavaCoder_juejue/article/details/83037521" target="_blank" rel="noopener">https://blog.csdn.net/JavaCoder_juejue/article/details/83037521</a></li>
+</ol>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Luis</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://warrest.github.io/2020/05/10/mysql%E7%9A%84%E5%87%A0%E4%B8%AA%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%9B%BE%E8%A7%A3/">https://warrest.github.io/2020/05/10/mysql%E7%9A%84%E5%87%A0%E4%B8%AA%E8%BF%9E%E6%8E%A5%E7%9A%84%E5%9B%BE%E8%A7%A3/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://warrest.github.io">Luis's Blog</a>！</span></div></div><div class="post-meta__tag-list"></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2020/05/10/%E5%AE%B6%E4%B9%A1%E7%9A%84%E7%BE%8E/"><i class="fa fa-chevron-left">  </i><span>家乡的美</span></a></div><div class="next-post pull-right"><a href="/2020/05/09/%E5%88%A0%E9%99%A4%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%87%8D%E5%A4%8D%E9%A1%B9/"><span>删除排序数组中的重复项</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://tva1.sinaimg.cn/large/007S8ZIlly1geli5cwtgpj31400mijty.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2020 By Luis</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody" target="_blank" rel="noopener"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.7.0"></script><script src="/js/fancybox.js?version=1.7.0"></script><script src="/js/sidebar.js?version=1.7.0"></script><script src="/js/copy.js?version=1.7.0"></script><script src="/js/fireworks.js?version=1.7.0"></script><script src="/js/transition.js?version=1.7.0"></script><script src="/js/scroll.js?version=1.7.0"></script><script src="/js/head.js?version=1.7.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>
