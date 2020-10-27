@@ -1,0 +1,57 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="redis基础数据结构"><meta name="keywords" content="redis,排行榜"><meta name="author" content="Luis"><meta name="copyright" content="Luis"><title>redis基础数据结构 | Luis's Blog</title><link rel="shortcut icon" href="https://tva1.sinaimg.cn/large/0081Kckwly1gk2psyr3rcj30dv0dw3zg.jpg"><link rel="stylesheet" href="/css/index.css?version=1.7.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.7.0"><meta name="format-detection" content="telephone=no"><meta http-equiv="x-dns-prefetch-control" content="on"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle = window.adsbygoogle || []).push({
+  google_ad_client: 'ca-pub-...........',
+  enable_page_level_ads: 'true'
+});
+</script><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script><meta name="generator" content="Hexo 4.2.0"></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar" data-display="true"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-4"><a class="toc-link" href="#string-字符串类型"><span class="toc-number">1.</span> <span class="toc-text">string 字符串类型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#hash-哈希"><span class="toc-number">2.</span> <span class="toc-text">hash(哈希)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#list-链表"><span class="toc-number">3.</span> <span class="toc-text">list 链表</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#set-集合"><span class="toc-number">4.</span> <span class="toc-text">set(集合)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#zset-有序集合"><span class="toc-number">5.</span> <span class="toc-text">zset(有序集合)</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="https://tva1.sinaimg.cn/large/007S8ZIlly1ggbjuwqrqkj30u00u0djg.jpg"></div><div class="author-info__name text-center">Luis</div><div class="author-info__description text-center">人总需要记住遗憾</div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">21</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">8</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">18</span></a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(https://tva1.sinaimg.cn/large/007S8ZIlly1ggbjmi776ij31c00u0whi.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Luis's Blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus">   <a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/categories">Categories</a><a class="site-page" href="/gallery">Gallery</a><a class="site-page" href="/about">About</a></span><span class="pull-right"></span></div><div id="post-info"><div id="post-title">redis基础数据结构</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2020-05-27</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/">技术</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/%E6%8A%80%E6%9C%AF/%E6%95%B0%E6%8D%AE%E5%BA%93/redis/">redis</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><ul>
+<li>string</li>
+<li>hash</li>
+<li>set(集合)</li>
+<li>list(链表)</li>
+<li>zset(有序集合)</li>
+</ul>
+<a id="more"></a>
+
+<h4 id="string-字符串类型"><a href="#string-字符串类型" class="headerlink" title="string 字符串类型"></a>string 字符串类型</h4><p>最常见的key-value结构<br>String类型是<strong>二进制安全</strong>的，意思是 redis 的 string 可以包含任何数据。如数字，字符串，jpg图片或者序列化的对象</p>
+<p>实战场景:</p>
+<ol>
+<li>缓存: ,把常用的信息,文字,图片等放在redis中,作为缓存层,mysql作为持久层,减少mysql的读写压力</li>
+<li>计数器: redis是单线程模型，一个命令执行完才会执行下一个，同时数据可以一步落地到其他的数据源。</li>
+<li>session: 常见方案spring session + redis实现<strong>session共享</strong></li>
+</ol>
+<h4 id="hash-哈希"><a href="#hash-哈希" class="headerlink" title="hash(哈希)"></a>hash(哈希)</h4><p>是一个Mapmap，指值本身又是一种键值对结构</p>
+<p>实战场景:</p>
+<ol>
+<li>缓存: 能直观，相比string更节省空间，的维护缓存信息，如用户信息，视频信息等。<h4 id="list-链表"><a href="#list-链表" class="headerlink" title="list 链表"></a>list 链表</h4>List 说白了就是链表（redis 使用双端链表实现的 List），是有序的，value可以重复，可以通过下标取出对应的value值，左右两边都能进行插入和删除数据。</li>
+</ol>
+<p><img src="https://tva1.sinaimg.cn/large/0081Kckwly1gk49hcdui5j30hu05yaan.jpg" alt=""><br>使用列表的技巧</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">lpush+lpop&#x3D;Stack(栈)</span><br><span class="line">lpush+rpop&#x3D;Queue（队列）</span><br><span class="line">lpush+ltrim&#x3D;Capped Collection（有限集合）</span><br><span class="line">lpush+brpop&#x3D;Message Queue（消息队列）</span><br></pre></td></tr></table></figure>
+
+<p>实战场景：<br>1.timeline：例如微博的时间轴，有人发布微博，用lpush加入时间轴，展示新的列表信息。</p>
+<h4 id="set-集合"><a href="#set-集合" class="headerlink" title="set(集合)"></a>set(集合)</h4><p>集合类型也是用来保存多个字符串的元素，但和列表不同的是集合中 </p>
+<ol>
+<li>不允许有重复的元素</li>
+<li>集合中的元素是<strong>无序</strong>的，不能通过索引下标获取元素</li>
+<li>支持集合间的操作，可以取多个集合取交集、并集、差集。</li>
+</ol>
+<p>实战场景:</p>
+<ol>
+<li>点赞: 收藏,可以放到set中</li>
+<li>标签: 构建用户标签,或者用户给消息添加标签，这样有同一标签或者类似标签的可以给推荐关注的事或者关注的人</li>
+</ol>
+<h4 id="zset-有序集合"><a href="#zset-有序集合" class="headerlink" title="zset(有序集合)"></a>zset(有序集合)</h4><p>有序集合和集合有着必然的联系，保留了集合不能有重复成员的特性，区别是，有序集合中的元素是可以排序的，它给每个元素设置一个分数，作为排序的依据。</p>
+<p>（有序集合中的元素不可以重复，但是score 分数 可以重复，就和一个班里的同学学号不能重复，但考试成绩可以相同）。<br><img src="https://tva1.sinaimg.cn/large/0081Kckwly1gk49xv3f5mj30g209r0tj.jpg" alt=""></p>
+<p>实战场景:<br>排行榜：有序集合经典使用场景。例如小说视频等网站需要对用户上传的小说视频做排行榜，榜单可以按照用户关注数，更新时间，字数等打分，做排行。</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Luis</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://warrest.github.io/2020/05/27/redis%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">https://warrest.github.io/2020/05/27/redis%E5%9F%BA%E7%A1%80%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank" rel="noopener">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://warrest.github.io">Luis's Blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/redis/">redis</a><a class="post-meta__tags" href="/tags/%E6%8E%92%E8%A1%8C%E6%A6%9C/">排行榜</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2020/07/01/golang%E4%B8%AD%E7%9A%84Panic,Recover%E5%92%8Cdefer%E5%87%BD%E6%95%B0/"><i class="fa fa-chevron-left">  </i><span>Go的defer(),panic(),recover()</span></a></div><div class="next-post pull-right"><a href="/2020/05/11/docker%E5%A4%87%E4%BB%BD%E5%92%8C%E8%BF%98%E5%8E%9F%E6%95%B0%E6%8D%AE%E5%BA%93/"><span>docker备份和还原数据库</span><i class="fa fa-chevron-right"></i></a></div></nav></div></div><footer class="footer-bg" style="background-image: url(https://tva1.sinaimg.cn/large/007S8ZIlly1ggbjmi776ij31c00u0whi.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2013 - 2020 By Luis</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io" target="_blank" rel="noopener"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody" target="_blank" rel="noopener"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.7.0"></script><script src="/js/fancybox.js?version=1.7.0"></script><script src="/js/sidebar.js?version=1.7.0"></script><script src="/js/copy.js?version=1.7.0"></script><script src="/js/fireworks.js?version=1.7.0"></script><script src="/js/transition.js?version=1.7.0"></script><script src="/js/scroll.js?version=1.7.0"></script><script src="/js/head.js?version=1.7.0"></script><script>if(/Android|webOS|iPhone|iPod|iPad|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+  $('#top-container').addClass('is-mobile')
+}</script></body></html>
